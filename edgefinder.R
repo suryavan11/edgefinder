@@ -32,11 +32,16 @@ edgefinder <- local( function( start, end, include.start = TRUE, include.end = T
   }
 
 
-  p$b1 = sapply(p$b,function(x) ifelse(include.end== T,max(a[a<x]),max(a[a<=x]) ) )
+  # p$b1 = sapply(p$b,function(x) ifelse(include.end== T,max(a[a<x]),max(a[a<=x]) ) )
+  # p1 = p%>%group_by(b1)%>%summarize(b = min(b) )%>%ungroup()
+  # p1 = p1[!is.infinite(p1$b1),]
 
-  p1 = p%>%group_by(b1)%>%summarize(b = min(b) )%>%ungroup()
-  p1 = p1[!is.infinite(p1$b1),]
-
+  ind = findInterval(p$b,a)
+  ind[ind==0] = -Inf
+  p$b1 = a[ind]
+  p1 = p[p$b == ave(p$b, p$b1, FUN=min),]
+  p1 = p1[!is.na(p1$b1),]
+  
   grps = rep(0,length(start)+1)
   grps[p1$b1] = 1
   grps[p1$b] = grps[p1$b]-1
